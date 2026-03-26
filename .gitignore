@@ -36,3 +36,6 @@ Thumbs.db
 .classpath
 .settings/
 
+#ouput file from idea
+out/
+IDS_Project.iml
