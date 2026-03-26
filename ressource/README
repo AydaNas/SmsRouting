@@ -2,8 +2,8 @@ This file conntain the network.
 
 n is in the Domain N* = {1,2,...}
 m is in the Domain N  = {0,1,2,...}
-Remark: Connexion are setup by a name You have initiate before.
-
+Remark 1: Connexion are setup by a name You have initiate before.
+Remark 2: Commente use #
 
 the file need to be file as follow:
 NB_ANTENNA (1..n)
