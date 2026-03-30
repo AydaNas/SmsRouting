@@ -91,12 +91,13 @@
 \[
 \texttt{Channel\_in}\ ?\ \langle\texttt{User\_send\_message},\ \texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle
 \]
-\hspace*{3em}\texttt{next\_antenna = Table\_User\_position.get(ID\_user\_to)}
+\hspace*{3em}\texttt{target\_antenna = Table\_User\_position.get(ID\_user\_to)}
 
-\textbf{if} \texttt{next\_antenna = ID\_antenna} \textbf{then}\\
+\textbf{if} \texttt{target\_antenna = ID\_antenna} \textbf{then}\\
 \hspace*{6em}\texttt{out\_channel = Table\_User.get(ID\_user\_to)}
 
 \textbf{else}\\
+\hspace*{6em}\texttt{next\_antenna = Routing\_Table.get(target\_antenna)}\\
 \hspace*{6em}\texttt{out\_channel = Table\_Antenna.get(next\_antenna)}\\
 \hspace*{3em}\texttt{out\_channel}\ !\ \text{User\_send\_message}$\langle$\texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}$\rangle$
 
