@@ -94,11 +94,12 @@ public class antenna {
                     int start_index = message.indexOf(",");
                     int end_index = message.indexOf(">");
                     String[] parameter =  message.substring(start_index + 1, end_index).split(",");
-                    String next_antenna = table_user_position.get(parameter[1]);
+                    String target_antenna = table_user_position.get(parameter[1]);
                     Channel out_channel ;
-                    if(Objects.equals(next_antenna, id_properties.get_name())){
+                    if(Objects.equals(target_antenna, id_properties.get_name())){
                         out_channel = table_User.get(parameter[1]);
                     }else{
+                        String next_antenna = routing_table.get(target_antenna);
                         out_channel = table_antenna.get(next_antenna);
                     }
                     out_channel.basicPublish("",parameter[1],null,message.getBytes());
