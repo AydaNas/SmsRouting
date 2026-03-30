@@ -9,6 +9,36 @@ public class read_network{
 
     Map<String,antenna_properties> antenna_map = new HashMap<>();
 
+    public HashMap<String,String> create_routing_table(antenna_properties id_properties){
+        HashMap<String,String> routing_table = new HashMap<>();
+
+        Queue<antenna_properties> to_visit =new LinkedList<>();
+        HashSet<String> visited = new HashSet<>();
+
+        to_visit.add(id_properties);
+
+        while(!to_visit.isEmpty()){
+
+            antenna_properties antenna = to_visit.poll();
+            String name=antenna.get_name();
+
+            for(String connected_name :antenna.get_connected()){
+                if (!visited.contains(connected_name)) {  // cohérent maintenant
+                    visited.add(connected_name);           // marquer dès l'ajout
+                    if (name.equals(id_properties.get_name())) {
+                        routing_table.put(connected_name, connected_name);
+                    } else {
+                        routing_table.put(connected_name, routing_table.get(name));
+                    }
+
+                    to_visit.add(antenna_map.get(connected_name));
+                }
+            }
+        }
+        routing_table.put(id_properties.get_name(), id_properties.get_name());
+        return routing_table;
+    }
+
     public read_network(String args) throws Exception{
         File network_file = new File(args);
 
