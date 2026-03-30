@@ -1,0 +1,9 @@
+#create 3 antenna A , B and C
+3
+A 0 0
+B 0 5
+C 0 10
+#Connected A and B ,and C and B with a biderictional link.
+2
+A B
+B C
