@@ -43,7 +43,26 @@ public class antenna_properties {
         return position;
     }
 
+    public  ArrayList<String> get_connected(){
+        return connected;
+    }
+
+    @Override
     public String toString(){
         return name+" ("+position.x+","+position.y+")\nconnexions: "+connected;
+    }
+
+    @Override
+    public int hashCode(){
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(this == o) return true;
+        if(!(o instanceof antenna_properties)) return false;
+        antenna_properties  that = (antenna_properties) o;
+        return name.equals(that.name) && position.equals(that.position);
+
     }
 }

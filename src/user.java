@@ -1,5 +1,116 @@
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.DeliverCallback;
+import utils.antenna_properties;
+import utils.State;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Scanner;
+
+import com.rabbitmq.client.ConnectionFactory;
+import read_network.read_network;
+
+import static utils.State.State_enum.S_ACK_RECEIVE;
+
 public class user {
+
     public static void main (String[] args) throws Exception {
+        if(args.length!=1){
+            throw new IllegalArgumentException("Wrong number of arguments");
+        }
+
+        final State receive_ack = new utils.State();
+
+        String tel="";
+        String antenna="";
+        //intialisation
+        System.out.println("Please enter the telephone number");
+        Scanner sc = new Scanner(System.in);
+        tel = sc.nextLine();
+
+        //linked to the closest antenna
+        read_network network= new read_network(args[0]);
+
+        List<antenna_properties> antennas_list= network.get_antennas();
+        System.out.println("List of available antennas:");
+        for(antenna_properties antenna_property:antennas_list){
+            System.out.println(antenna_property);
+        }
+        System.out.println("Please enter the antenna id");
+        antenna = sc.nextLine();
+
+        //rabbitmq init
+        ConnectionFactory factory = new ConnectionFactory();
+        try(Connection connection = factory.newConnection();){
+
+            //channel init
+            Channel channel_in = connection.createChannel();
+            Channel channel_out = connection.createChannel();
+            channel_in.queueDeclare(tel,false,false,false,null);
+
+            //
+            DeliverCallback deliverCallback = (consumerTag, delivery) -> {
+                String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                System.out.println(" received "+message);
+                if(message.matches("<User_send_message,+[a-zA-Z0-9]+,+[a-zA-Z0-9]+,+[a-zA-Z0-9]+>")){
+                    int start_index = message.indexOf(",");
+                    int end_index = message.indexOf(">");
+                    String[] parameter =  message.substring(start_index + 1, end_index).split(",");
+                    System.out.println(parameter[0]+":"+parameter[2]);
+                }
+                if(message.equals("Antenna_Ack")){
+                    receive_ack.set_state(S_ACK_RECEIVE);
+
+                }
+            };
+
+
+            String tmp;
+            boolean quite = false;
+            String message = "<User_connected,"+tel+">";
+            channel_in.basicConsume(tel,true,deliverCallback,(consumerTag, delivery) -> {});
+            channel_out.basicPublish("",antenna,null,message.getBytes());
+            while (!receive_ack.get_state().equals(S_ACK_RECEIVE)) {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            System.out.println("Antenna acknowledged you are now connected");
+            // user action
+            while(!quite){
+                System.out.println("three choices (exit|send <Destination> <message>): ");
+                tmp = sc.nextLine();
+                String[] parameter = tmp.split(" ");
+                switch(parameter[0]){
+                    case "exit":
+                        quite=true;
+                        channel_in.close();
+                        message = "<User_disconnected,"+tel+">";
+                        channel_out.basicPublish("",antenna,null,message.getBytes());
+                        break;
+                    case "send":
+                        if(parameter.length<3){
+                            System.err.println("\"send\" key word as been recognise but it requires at least 3 parameters (the id destination and the message)\n write like : send <Destination> <message>");
+                        }else {
+                            if (parameter.length>3){
+                                System.err.println("too many parameters. extra parameter ignored");
+                            }
+                            message = "<User_send_message," + tel + "," + parameter[1] + "," + parameter[2] + ">";
+                            channel_out.basicPublish("", antenna, null, message.getBytes());
+                        }
+                        break;
+                    default:
+                        System.out.println("Invalid commande");
+                }
+            }
+            System.out.println("quiting");
+
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 }
