@@ -1,13 +1,15 @@
+package read_network;
+
+import utils.antenna_properties;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
-import utils.antenna_properties;
-
 
 public class read_network{
 
-    Map<String,antenna_properties> antenna_map = new HashMap<>();
+    Map<String, antenna_properties> antenna_map = new HashMap<>();
 
     public HashMap<String,String> create_routing_table(antenna_properties id_properties){
         HashMap<String,String> routing_table = new HashMap<>();
