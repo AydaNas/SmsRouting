@@ -91,7 +91,7 @@ public class antenna {
                         }
                     }
                 }
-                if(message.matches("<User_send_message,+[a-zA-Z0-9]+,+[a-zA-Z0-9]+,+[a-zA-Z0-9]+>")){
+                if(message.matches("<User_send_message,+[a-zA-Z0-9 ]+,+[a-zA-Z0-9 ]+,+[a-zA-Z0-9 ]+>")){
                     int start_index = message.indexOf(",");
                     int end_index = message.indexOf(">");
                     String[] parameter =  message.substring(start_index + 1, end_index).split(",");

@@ -1,19 +1,24 @@
+import Erreur.Unrecognized_backslash;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.DeliverCallback;
+import Erreur.MissingQuotationMark;
 import utils.antenna_properties;
 import utils.State;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import com.rabbitmq.client.ConnectionFactory;
 import read_network.read_network;
+import utils.utils_class;
 
 import static utils.State.State_enum.S_ACK_RECEIVE;
 
 public class user {
+
 
     public static boolean antenna_id_correct(String antenna_id, List<antenna_properties> antenna_property_list){
         for(antenna_properties antenna_property:antenna_property_list){
@@ -29,7 +34,9 @@ public class user {
             throw new IllegalArgumentException("Wrong number of arguments");
         }
 
+
         final State receive_ack = new utils.State();
+        final utils_class utils_tool = new utils.utils_class();
 
         String tel="";
         String antenna="";
@@ -71,7 +78,7 @@ public class user {
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
                 System.out.println(" received "+message);
-                if(message.matches("<User_send_message,+[a-zA-Z0-9]+,+[a-zA-Z0-9]+,+[a-zA-Z0-9]+>")){
+                if(message.matches("<User_send_message,+[a-zA-Z0-9 ]+,+[a-zA-Z0-9 ]+,+[a-zA-Z0-9 ]+>")){
                     int start_index = message.indexOf(",");
                     int end_index = message.indexOf(">");
                     String[] parameter =  message.substring(start_index + 1, end_index).split(",");
@@ -101,48 +108,56 @@ public class user {
             while(!quite){
                 System.out.println("three choices (exit|send <Destination> <message>|move <ID_antenna>): ");
                 tmp = sc.nextLine();
-                String[] parameter = tmp.split(" ");
-                switch(parameter[0]){
-                    case "exit":
-                        quite=true;
-                        channel_in.close();
-                        message = "<User_disconnected,"+tel+">";
-                        channel_out.basicPublish("",antenna,null,message.getBytes());
-                        break;
-                    case "send":
-                        if(parameter.length<3){
-                            System.err.println("\"send\" key word as been recognise but it requires at least 2 parameters (the id destination and the message)\n write like : send <Destination> <message>");
-                        }else {
-                            if (parameter.length>3){
-                                System.err.println("too many parameters. extra parameter ignored");
+                try {
+                    ArrayList<String> parameter = utils_class.user_itf_terminal_commande(tmp);
+                    switch(parameter.getFirst()){
+                        case "exit":
+                            quite=true;
+                            channel_in.close();
+                            message = "<User_disconnected,"+tel+">";
+                            channel_out.basicPublish("",antenna,null,message.getBytes());
+                            break;
+                        case "send":
+                            if(parameter.size()<3){
+                                System.err.println("\"send\" key word as been recognise but it requires at least 2 parameters (the id destination and the message)\n write like : send <Destination> <message>");
+                            }else {
+                                if (parameter.size()>3){
+                                    System.err.println("too many parameters. extra parameter ignored");
+                                }
+                                message = "<User_send_message," + tel + "," + parameter.get(1) + "," + parameter.get(2) + ">";
+                                channel_out.basicPublish("", antenna, null, message.getBytes());
                             }
-                            message = "<User_send_message," + tel + "," + parameter[1] + "," + parameter[2] + ">";
-                            channel_out.basicPublish("", antenna, null, message.getBytes());
-                        }
-                        break;
-                    case "move":
-                        if(parameter.length==2){
-                            tmp = parameter[1];
-                            if(antenna_id_correct(tmp,antennas_list)){
-                                message = "<User_move,"+tel+">";
-                                channel_out.basicPublish("",antenna,null,message.getBytes());
-                                channel_out.close();
-                                antenna = tmp;
-                                channel_out = connection.createChannel();
-                                message = "<User_connected,"+tel+">";
-                                channel_out.basicPublish("",antenna,null,message.getBytes());
-                            }else{
-                                System.err.println("antenna "+parameter[1]+" is not a valid antenna");
+                            break;
+                        case "move":
+                            if(parameter.size()==2){
+                                tmp = parameter.get(1);
+                                if(antenna_id_correct(tmp,antennas_list)){
+                                    message = "<User_move,"+tel+">";
+                                    channel_out.basicPublish("",antenna,null,message.getBytes());
+                                    channel_out.close();
+                                    antenna = tmp;
+                                    channel_out = connection.createChannel();
+                                    message = "<User_connected,"+tel+">";
+                                    channel_out.basicPublish("",antenna,null,message.getBytes());
+                                }else{
+                                    System.err.println("antenna "+parameter.get(1)+" is not a valid antenna");
+                                }
+                            }else {
+                                System.err.println("not enough parameters. requires at least 1 parameter (Id message)");
                             }
-                        }else {
-                            System.err.println("not enough parameters. requires at least 1 parameter (Id message)");
-                        }
-                        break;
-                    default:
-                        System.out.println("Invalid commande");
+                            break;
+                        default:
+                            System.out.println("Invalid commande");
+                    }
+
+                }catch (MissingQuotationMark e){
+                    System.out.println("Missing quotation mark");
+                }catch (Unrecognized_backslash e){
+                    System.out.println("Unrecognized backslash");
                 }
             }
             System.out.println("quiting");
+
 
         }catch (Exception e) {
             throw new RuntimeException(e);
