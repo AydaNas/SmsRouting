@@ -47,6 +47,10 @@ public class antenna_properties {
         return connected;
     }
 
+    public boolean name_boolean(String name){
+        return this.name.equals(name);
+    }
+
     @Override
     public String toString(){
         return name+" ("+position.x+","+position.y+")\nconnexions: "+connected;

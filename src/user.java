@@ -15,6 +15,15 @@ import static utils.State.State_enum.S_ACK_RECEIVE;
 
 public class user {
 
+    public static boolean antenna_id_correct(String antenna_id, List<antenna_properties> antenna_property_list){
+        for(antenna_properties antenna_property:antenna_property_list){
+            if(antenna_property.name_boolean(antenna_id)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void main (String[] args) throws Exception {
         if(args.length!=1){
             throw new IllegalArgumentException("Wrong number of arguments");
@@ -81,7 +90,7 @@ public class user {
             System.out.println("Antenna acknowledged you are now connected");
             // user action
             while(!quite){
-                System.out.println("three choices (exit|send <Destination> <message>): ");
+                System.out.println("three choices (exit|send <Destination> <message>|move <ID_antenna>): ");
                 tmp = sc.nextLine();
                 String[] parameter = tmp.split(" ");
                 switch(parameter[0]){
@@ -93,13 +102,31 @@ public class user {
                         break;
                     case "send":
                         if(parameter.length<3){
-                            System.err.println("\"send\" key word as been recognise but it requires at least 3 parameters (the id destination and the message)\n write like : send <Destination> <message>");
+                            System.err.println("\"send\" key word as been recognise but it requires at least 2 parameters (the id destination and the message)\n write like : send <Destination> <message>");
                         }else {
                             if (parameter.length>3){
                                 System.err.println("too many parameters. extra parameter ignored");
                             }
                             message = "<User_send_message," + tel + "," + parameter[1] + "," + parameter[2] + ">";
                             channel_out.basicPublish("", antenna, null, message.getBytes());
+                        }
+                        break;
+                    case "move":
+                        if(parameter.length==2){
+                            tmp = parameter[1];
+                            if(antenna_id_correct(tmp,antennas_list)){
+                                message = "<User_move,"+tel+">";
+                                channel_out.basicPublish("",antenna,null,message.getBytes());
+                                channel_out.close();
+                                antenna = tmp;
+                                channel_out = connection.createChannel();
+                                message = "<User_connected,"+tel+">";
+                                channel_out.basicPublish("",antenna,null,message.getBytes());
+                            }else{
+                                System.err.println("antenna "+parameter[1]+" is not a valid antenna");
+                            }
+                        }else {
+                            System.err.println("not enough parameters. requires at least 1 parameter (Id message)");
                         }
                         break;
                     default:
@@ -113,4 +140,6 @@ public class user {
         }
 
     }
+
+
 }
