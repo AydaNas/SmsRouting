@@ -42,12 +42,21 @@ public class user {
         read_network network= new read_network(args[0]);
 
         List<antenna_properties> antennas_list= network.get_antennas();
-        System.out.println("List of available antennas:");
-        for(antenna_properties antenna_property:antennas_list){
-            System.out.println(antenna_property);
+        boolean antenna_selected = false;
+        while(!antenna_selected){
+            System.out.println("List of available antennas:");
+            for(antenna_properties antenna_property:antennas_list){
+                System.out.println(antenna_property);
+            }
+            System.out.println("Please enter the antenna id");
+            antenna = sc.nextLine();
+            if(antenna_id_correct(antenna,antennas_list)){
+                antenna_selected=true;
+            }else{
+                System.err.println("Invalid antenna id");
+            }
         }
-        System.out.println("Please enter the antenna id");
-        antenna = sc.nextLine();
+
 
         //rabbitmq init
         ConnectionFactory factory = new ConnectionFactory();
