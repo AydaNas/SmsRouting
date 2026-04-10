@@ -1,0 +1,107 @@
+2026-04-10T12:27:35.673Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-04-10T12:27:35.673Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "projectPath": "/home/ensimag/Documents/SMSRouting",
+  "event": "precheckCompleted",
+  "phase": "precheck",
+  "status": "succeeded",
+  "message": "Project is a Maven project with Java 21 configured; target latest LTS is Java 25 and upgrade is feasible."
+}}).
+2026-04-10T12:27:35.673Z [INFO] [Tool.invoke] do invoke.
+2026-04-10T12:27:35.677Z [INFO] Project /home/ensimag/Documents/SMSRouting is a maven project, try to get java version from pom.xml
+2026-04-10T12:27:35.679Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'precheckCompleted' reported!\nSession ID: 20260410122735,\nSession Dir: /home/ensimag/Documents/SMSRouting/.github/java-upgrade/20260410122735"
+}}).
+2026-04-10T12:27:35.679Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-04-10T12:27:35.682Z [INFO] Project java version: 21
+2026-04-10T12:27:35.682Z [INFO] Maven project detected.
+2026-04-10T12:27:35.682Z [INFO] Build tool type: mvn
+2026-04-10T12:27:35.708Z [INFO] JDK: {
+  "name": "java",
+  "path": "/usr/lib/jvm/java-21-openjdk-amd64/bin",
+  "version": "21"
+}
+2026-04-10T12:27:35.711Z [INFO] Build tool: {
+  "name": "mvn",
+  "path": "/usr/share/maven/bin",
+  "version": "",
+  "source": "PATH,others"
+}
+2026-04-10T12:27:35.711Z [INFO] Project config: {
+  "buildTool": {
+    "path": "/usr/share/maven/bin",
+    "name": "mvn",
+    "version": "",
+    "source": "PATH,others"
+  },
+  "jdk": {
+    "path": "/usr/lib/jvm/java-21-openjdk-amd64/bin",
+    "name": "java",
+    "version": "21"
+  },
+  "name": "SMSRouting",
+  "dir": "/home/ensimag/Documents/SMSRouting"
+}
+2026-04-10T12:27:40.999Z [INFO] ---------------------prepare appmod-report-event----------------------
+2026-04-10T12:27:41.000Z [INFO] [Tool.prepareInvocation]({name: appmod-report-event, input: {
+  "sessionId": "20260410122735",
+  "projectPath": "/home/ensimag/Documents/SMSRouting",
+  "event": "planGenerationStarted",
+  "phase": "plan",
+  "status": "succeeded"
+}}).
+2026-04-10T12:27:41.000Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-04-10T12:27:41.000Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "Report upgrade event"
+}}).
+2026-04-10T12:27:41.000Z [INFO] ----------------------prepared appmod-report-event----------------------
+2026-04-10T12:27:41.138Z [INFO] ----------------------invoke appmod-report-event----------------------
+2026-04-10T12:27:41.138Z [INFO] [Tool.invoke]({name: appmod-report-event, input: {
+  "sessionId": "20260410122735",
+  "projectPath": "/home/ensimag/Documents/SMSRouting",
+  "event": "planGenerationStarted",
+  "phase": "plan",
+  "status": "succeeded"
+}}).
+2026-04-10T12:27:41.138Z [INFO] [Tool.invoke] do invoke.
+2026-04-10T12:27:41.142Z [INFO] [Tool.invoke]({result: {
+  "message": "Event 'planGenerationStarted' reported!\nSession ID: 20260410122735,\nSession Dir: /home/ensimag/Documents/SMSRouting/.github/java-upgrade/20260410122735"
+}}).
+2026-04-10T12:27:41.142Z [INFO] ----------------------invoked appmod-report-event----------------------
+2026-04-10T12:28:12.530Z [INFO] ---------------------prepare appmod-list-jdks----------------------
+2026-04-10T12:28:12.530Z [INFO] [Tool.prepareInvocation]({name: appmod-list-jdks, input: {
+  "sessionId": "20260410122735"
+}}).
+2026-04-10T12:28:12.530Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-04-10T12:28:12.531Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "List jdks"
+}}).
+2026-04-10T12:28:12.531Z [INFO] ----------------------prepared appmod-list-jdks----------------------
+2026-04-10T12:28:12.638Z [INFO] ----------------------invoke appmod-list-jdks----------------------
+2026-04-10T12:28:12.638Z [INFO] [Tool.invoke]({name: appmod-list-jdks, input: {
+  "sessionId": "20260410122735"
+}}).
+2026-04-10T12:28:12.638Z [INFO] [Tool.invoke] do invoke.
+2026-04-10T12:28:12.655Z [INFO] [Tool.invoke]({result: {
+  "message": "We found following jdks in your system:\n\n1. Java 21.0.10\n   📁 Path: /usr/lib/jvm/java-21-openjdk-amd64/bin\n   🏷️ Source: PATH\n\n2. Java 21.0.10\n   📁 Path: /usr/lib/jvm/default-java/bin\n   🏷️ Source: others\n\n3. Java 21.0.10\n   📁 Path: /usr/lib/jvm/java-1.21.0-openjdk-amd64/bin\n   🏷️ Source: others\n\nTotal: 3 JDK installation(s) found"
+}}).
+2026-04-10T12:28:12.655Z [INFO] ----------------------invoked appmod-list-jdks----------------------
+2026-04-10T12:28:12.680Z [INFO] ---------------------prepare appmod-list-mavens----------------------
+2026-04-10T12:28:12.680Z [INFO] [Tool.prepareInvocation]({name: appmod-list-mavens, input: {
+  "sessionId": "20260410122735",
+  "includeVersion": true
+}}).
+2026-04-10T12:28:12.680Z [INFO] [Tool.prepareInvocation] do prepare invocation.
+2026-04-10T12:28:12.681Z [INFO] [Tool.prepareInvocation]({result: {
+  "invocationMessage": "List mavens"
+}}).
+2026-04-10T12:28:12.681Z [INFO] ----------------------prepared appmod-list-mavens----------------------
+2026-04-10T12:28:12.756Z [INFO] ----------------------invoke appmod-list-mavens----------------------
+2026-04-10T12:28:12.756Z [INFO] [Tool.invoke]({name: appmod-list-mavens, input: {
+  "sessionId": "20260410122735",
+  "includeVersion": true
+}}).
+2026-04-10T12:28:12.757Z [INFO] [Tool.invoke] do invoke.
+2026-04-10T12:28:13.495Z [INFO] [Tool.invoke]({result: {
+  "message": "We found following maven installations in your system:\n\n1. Maven \n   📁 Path: /usr/share/maven/bin\n   🏷️ Source: PATH,others\n\nTotal: 1 Maven installation(s) found"
+}}).
+2026-04-10T12:28:13.495Z [INFO] ----------------------invoked appmod-list-mavens----------------------
