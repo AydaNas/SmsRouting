@@ -1,4 +1,8 @@
+How to compile codes:
+javac -d classes -classpath "lib/*" src/*
 
+Run Antenna:
+java -cp "classes:lib/*" Antenna
 
-Compile project code :
-    TODO
+Run User:
+java -cp "classes:lib/*" User <from to message>
