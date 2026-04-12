@@ -4,12 +4,9 @@ import java.util.*;
 public class Antenna {
 
   private static final String EXCHANGE_NAME = "sms"; //exchange
-  private static final String QUEUE_NAME = "antenna.A"; //antenna
-  private static final String BINDING_KEY = "sms.forward.A"; //forward messages
-  private static final String NEXT_ROUTING_KEY = "sms.forward.B"; // next hop
+  //private static final String QUEUE_NAME = "antenna.A"; //antenna
+  //private static final String BINDING_KEY = "sms.forward.A"; //forward messages
 
-    // Create a Set with HashSet
-  private static final Set<String> localUsers = new HashSet<>();
 
   public static void main(String[] argv) throws Exception {
     ConnectionFactory factory = new ConnectionFactory();
@@ -17,16 +14,35 @@ public class Antenna {
     Connection connection = factory.newConnection();
     Channel channel = connection.createChannel();
 
+    // define antenna
+    String antennaName;
+
+    // input antenna name
+    if (argv.length >= 1) {
+    antennaName = argv[0];
+    } else {
+        System.err.println("Usage: java Antenna <antenna name>");
+        return;
+    }
+
+    // define queue name
+    String queueName = "antenna." + antennaName;
+
+    // define binding key
+    String bindingKey = "sms.forward." + antennaName;
+
+    // get next anternna from hashmap
+    String next = Config.nextMap.get(antennaName);
+    Set<String> localUsers = Config.userMap.get(antennaName);
+
+    String nextRoutingKey = "sms.forward." + next;
+
     channel.exchangeDeclare(EXCHANGE_NAME, "topic");
-    channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-    channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, BINDING_KEY);
+    channel.queueDeclare(queueName, false, false, false, null);
+    channel.queueBind(queueName, EXCHANGE_NAME, bindingKey);
     //String queueName = channel.queueDeclare().getQueue();
 
-    // add users
-    localUsers.add("U1");
-    localUsers.add("U2");
-
-    System.out.println(" [*] Antenna is waiting for messages.");
+    System.out.println(" [*] Antenna" + " "  + antennaName + " is waiting for messages.");
 
     DeliverCallback deliverCallback = (consumerTag, delivery) -> {
         String received = new String(delivery.getBody(), "UTF-8");
@@ -49,10 +65,10 @@ public class Antenna {
 
           System.out.println("Forwarding to next antenna... TTL=" + msg.ttl);
           String data = serialize(msg);
-          channel.basicPublish(EXCHANGE_NAME, NEXT_ROUTING_KEY, null, data.getBytes("UTF-8"));
+          channel.basicPublish(EXCHANGE_NAME, nextRoutingKey, null, data.getBytes("UTF-8"));
         }
     };
-    channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
+    channel.basicConsume(queueName, true, deliverCallback, consumerTag -> { });
   }
 
   // messages separeted by |
