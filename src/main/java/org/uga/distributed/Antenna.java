@@ -51,7 +51,7 @@ switch(message.getType()){
         double distance = Math.sqrt(Math.pow(message.getX() - antennaLocationX ,2) + Math.pow(message.getY() -antennaLocationY,2));
         if(distance <= coverageRadius){
        
-           // System.out.println("Greetings .. This is Antenna"+id+"replying, user please forward your SMS am listening!");
+         System.out.println("Greetings .. This is Antenna"+id+"replying, user please forward your SMS am listening!");
          Message reply = new Message(Message.MessageType.Search_reply, id, "Greeting from Antenna" + id + " is here in your range ");
          reply.setDistance(distance);
   
@@ -66,7 +66,9 @@ switch(message.getType()){
             Message update = new Message(Message.MessageType.Update_Location,this.id,message.getSenderId());
 
             channel.basicPublish("connection","",null,objectMapper.writeValueAsBytes(update));
-            }           
+         System.out.println("Antenna" + id + "registers user" + message.getSenderId()); 
+            
+        }           
             break;
 
      case Update_Location:

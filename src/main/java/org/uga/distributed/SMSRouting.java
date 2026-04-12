@@ -33,14 +33,24 @@ if(args.length < 2){
           
         
         else if(role.equals("user")){
+            double x_loc = 0;
+            double y_loc =0;
+
+            if (args.length >= 4) {
+                x_loc = Double.parseDouble(args[2]);
+                y_loc = Double.parseDouble(args[3]);
+            } else {
+              System.out.println("no location deteced");
+            }
             User user = new User();
+            user.userInit(id,x_loc,y_loc);
             user.startUser(id);
             
         
         
         Scanner scanner = new Scanner(System.in);
         System.out.println("you are user with id" + id);
-    System.out.println("To send sms type: sms <receiverId> <messageContent>");
+    System.out.println("To send sms type: sms , receiverId ,  Content");
 
         while (true) {
          String smsContent = scanner.nextLine();

@@ -21,6 +21,13 @@ public class User{
     private ObjectMapper objectMapper = new ObjectMapper();
 private Channel channel;
 
+public void userInit(String id, double x, double y){
+    this.id = id;
+    this.userLocationX = x;
+    this.userLocationY = y;
+}
+
+
     public void startUser(String id)throws Exception{
 // Initialize RabbitMQ connection and channel 
 // creates a unique queue for the user to receive messages
@@ -60,8 +67,7 @@ search_message.setSenderId(this.id);
 
 search_message.setContent("Hello am searching for antena to connect with");
 
-this.userLocationX = Math.random()*100;
-this.userLocationY = Math.random()*100;
+
 
 search_message.setX(this.userLocationX);
 search_message.setY(this.userLocationY);
@@ -74,8 +80,11 @@ search_message.setY(this.userLocationY);
 
 boolean connected = false;
 while(!connected){
-       
- 
+      search_message.setX(this.userLocationX);
+       search_message.setY(this.userLocationY);
+ channel.basicPublish(ExchangeName,"",null,objectMapper.writeValueAsBytes(search_message));
+ System.out.println("user with id"+ id + "Send broadcas to antennas");
+
     Thread.sleep(2000);
     if(repliesReceived.isEmpty()){
         
