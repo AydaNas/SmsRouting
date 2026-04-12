@@ -25,6 +25,8 @@ public void antennaInit(String id, double x, double y){
 }
 
 public void startAntenna() throws Exception {
+
+    User user = new User();
     ConnectionFactory factory = new ConnectionFactory();
     factory.setHost("localhost");
     Connection connection = factory.newConnection();
@@ -33,10 +35,10 @@ public void startAntenna() throws Exception {
     String antennaQueueName = "antenna_queue" + id;
     channel.queueDeclare(antennaQueueName,false,false,false,null);
     
-    channel.exchangeDeclare("discovery","fanout");
-    channel.exchangeDeclare("registration","fanout");
-    channel.queueBind(antennaQueueName,"discovery","");
-    channel.queueBind(antennaQueueName,"registration","");
+    channel.exchangeDeclare("Search","fanout");
+    channel.exchangeDeclare("Connection","fanout");
+    channel.queueBind(antennaQueueName,"Search","");
+    channel.queueBind(antennaQueueName,"Connection","");
     System.out.println("Antenna"+id+"is running...");
 
 
@@ -44,30 +46,26 @@ public void startAntenna() throws Exception {
     Message message = objectMapper.readValue(delivery.getBody(),Message.class);
 
 
-    User user = new User();
-
 switch(message.getType()){
-    case Discovery:
+    case Search:
         double distance = Math.sqrt(Math.pow(message.getX() - antennaLocationX ,2) + Math.pow(message.getY() -antennaLocationY,2));
         if(distance <= coverageRadius){
        
            // System.out.println("Greetings .. This is Antenna"+id+"replying, user please forward your SMS am listening!");
-         Message reply = new Message(Message.MessageType.Discovery_reply, id, "Greeting from Antenna" + id + " is here in your range ");
-        
-
-        reply.setDistance(distance);
-       // reply.setDestinationAntennaId(id);
+         Message reply = new Message(Message.MessageType.Search_reply, id, "Greeting from Antenna" + id + " is here in your range ");
+         reply.setDistance(distance);
+  
         channel.basicPublish("","user_queue" + message.getSenderId(),null,
         objectMapper.writeValueAsBytes(reply));
         }
      break;
 
-        case Registration:
+        case Connection:
             if(message.getDestinationAntennaId().equals(this.id)){
-            localUsers.put(message.getSenderId(),"am registering you");
+            localUsers.put(message.getSenderId(),"user is registered here");
             Message update = new Message(Message.MessageType.Update_Location,this.id,message.getSenderId());
 
-                        channel.basicPublish("registration","",null,objectMapper.writeValueAsBytes(update));
+            channel.basicPublish("connection","",null,objectMapper.writeValueAsBytes(update));
             }           
             break;
 

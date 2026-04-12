@@ -12,10 +12,10 @@ public class Message implements Serializable {
    public enum MessageType {
         SMS,
         Leave,
-        Discovery,
+        Search,
         Update_Location,
-        Discovery_reply,
-        Registration
+        Search_reply,
+      Connection
     }
     public MessageType type;
 
