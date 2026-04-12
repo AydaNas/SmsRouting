@@ -6,6 +6,7 @@ public class Antenna {
   private static final String EXCHANGE_NAME = "sms"; //exchange
   private static final String QUEUE_NAME = "antenna.A"; //antenna
   private static final String BINDING_KEY = "sms.forward.A"; //forward messages
+  private static final String NEXT_ROUTING_KEY = "sms.forward.B"; // next hop
 
     // Create a Set with HashSet
   private static final Set<String> localUsers = new HashSet<>();
@@ -39,7 +40,16 @@ public class Antenna {
           System.out.println("Message: " + msg.message);
         } else {
           System.out.println("User " + msg.to + " is not in the local antenna");
-          System.out.println("Forwarding ...");
+          msg.ttl--;
+          // when ttl becomes 0, stop forwarding
+          if (msg.ttl <= 0) {
+          System.out.println("TTL expired: " + msg);
+          return;
+          }
+
+          System.out.println("Forwarding to next antenna... TTL=" + msg.ttl);
+          String data = serialize(msg);
+          channel.basicPublish(EXCHANGE_NAME, NEXT_ROUTING_KEY, null, data.getBytes("UTF-8"));
         }
     };
     channel.basicConsume(QUEUE_NAME, true, deliverCallback, consumerTag -> { });
@@ -54,5 +64,9 @@ public class Antenna {
                 parts[3],
                 Integer.parseInt(parts[2])
         );
+  }
+
+  private static String serialize(Message msg) {
+        return msg.from + "|" + msg.to + "|" + msg.ttl + "|" + msg.message;
     }
 }
