@@ -1,6 +1,7 @@
 package org.uga.distributed;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
@@ -14,7 +15,6 @@ private String id;
 private double antennaLocationX;
 private double antennaLocationY;
 private double coverageRadius = 50.0;
-private Map<String ,String> localUsers = new HashMap<>();
 private Map<String,String> globaluserRegistry = new HashMap<>();
 private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -62,23 +62,23 @@ switch(message.getType()){
 
         case Connection:
             if(message.getDestinationAntennaId().equals(this.id)){
-            localUsers.put(message.getSenderId(),"user is registered here");
+            globaluserRegistry.put(message.getSenderId(),this.id);
             Message update = new Message(Message.MessageType.Update_Location,this.id,message.getSenderId());
 
-            channel.basicPublish("connection","",null,objectMapper.writeValueAsBytes(update));
+            channel.basicPublish("Connection","",null,objectMapper.writeValueAsBytes(update));
          System.out.println("Antenna" + id + "registers user" + message.getSenderId()); 
             
         }           
             break;
 
      case Update_Location:
-          globaluserRegistry.put(message.getSenderId(), message.getSenderId());
+          globaluserRegistry.put(message.content, message.getSenderId());
           
            break;
 
        case SMS: 
        String receiver = message.getReciverId();
-            if(localUsers.containsKey(receiver)){
+            if(Objects.equals(globaluserRegistry.get(receiver), this.id)){
 
             System.out.println("antenna"+id+"delivers SMS to Localuser"+ receiver + "content: " + message.getContent());
           channel.basicPublish("","user_queue" + receiver,null,objectMapper.writeValueAsBytes(message));
