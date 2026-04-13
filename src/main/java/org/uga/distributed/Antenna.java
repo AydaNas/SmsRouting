@@ -13,7 +13,7 @@ public class Antenna {
 private String id;
 private double antennaLocationX;
 private double antennaLocationY;
-private double coverageRadius = 100.0;
+private double coverageRadius = 50.0;
 private Map<String ,String> localUsers = new HashMap<>();
 private Map<String,String> globaluserRegistry = new HashMap<>();
 private final ObjectMapper objectMapper = new ObjectMapper();
