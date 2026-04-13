@@ -102,7 +102,7 @@ while(!connected){
         this.currentAntennaId= close_antenna.getSenderId();
         Message connection_message = new Message(Message.MessageType.Connection, this.id, "Please register me to  your antenna");
         connection_message.setDestinationAntennaId(this.currentAntennaId);
-        channel.basicPublish("connection" ,"",null,objectMapper.writeValueAsBytes(connection_message));
+        channel.basicPublish("Connection" ,"",null,objectMapper.writeValueAsBytes(connection_message));
     connected = true; 
     }
     else {
