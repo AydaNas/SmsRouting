@@ -1,0 +1,21 @@
+This file conntain the network.
+
+n is in the Domain N* = {1,2,...}
+m is in the Domain N  = {0,1,2,...}
+Remark 1: Connexion are setup by a name You have initiate before.
+Remark 2: Commente use #
+
+the file need to be file as follow:
+NB_ANTENNA (1..n)
+NAME_ANTENNA_1 POSITION_ANTENNA_x_1 POSITION_ANTENNA_y_1 
+NAME_ANTENNA_2 POSITION_ANTENNA_x_2 POSITION_ANTENNA_y_2 
+...
+NAME_ANTENNA_n POSITION_ANTENNA_x_n POSITION_ANTENNA_y_n 
+NB_CONNEXION_BETWEEN_ANTENNA (0..m)
+NAME_ANTENNA_SRC_1 NAME_ANTENNA_DEST_1
+NAME_ANTENNA_SRC_2 NAME_ANTENNA_DEST_2
+...
+NAME_ANTENNA_DEST_m NAME_ANTENNA_DEST_m
+[EOF]
+
+see exemple_1.net: to understand
