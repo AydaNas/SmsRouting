@@ -39,3 +39,4 @@ Thumbs.db
 #ouput file from idea
 out/
 IDS_Project.iml
+target/
