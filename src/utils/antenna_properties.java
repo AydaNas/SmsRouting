@@ -2,28 +2,35 @@ package utils;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.SequencedSet;
 
 public class antenna_properties {
     String name;
-    Point position;
+    double x;
+    double y;
+    double radius;
 
     ArrayList<String> connected;
 
     public antenna_properties(){
         name="";
-        position=new Point();
+        x=0.0;
+        y=0.0;
         connected=new ArrayList<>();
+        radius=50.0;
     }
 
     public antenna_properties(String name){
         this.name=name;
-        position=new Point();
+        x=0.0;
+        y=0.0;
         connected=new ArrayList<>();
+        radius=50.0;
     }
-    public antenna_properties(String name,int x,int y){
+    public antenna_properties(String name, double x, double y,double radius){
         this.name=name;
-        position=new Point(x,y);
+        this.x=x;
+        this.y=y;
+        this.radius=radius;
         connected=new ArrayList<>();
     }
 
@@ -39,8 +46,16 @@ public class antenna_properties {
         return name;
     }
 
-    public Point get_position(){
-        return position;
+    public double get_position_x(){
+        return x;
+    }
+
+    public double get_position_y(){
+        return y;
+    }
+
+    public double get_radius(){
+        return radius;
     }
 
     public  ArrayList<String> get_connected(){
@@ -53,7 +68,7 @@ public class antenna_properties {
 
     @Override
     public String toString(){
-        return name+" ("+position.x+","+position.y+")\nconnexions: "+connected;
+        return name+" ("+x+","+y+") of radius "+radius+"\nconnexions: "+connected;
     }
 
     @Override
@@ -66,7 +81,7 @@ public class antenna_properties {
         if(this == o) return true;
         if(!(o instanceof antenna_properties)) return false;
         antenna_properties  that = (antenna_properties) o;
-        return name.equals(that.name) && position.equals(that.position);
+        return name.equals(that.name) && x == that.x && y == that.y;
 
     }
 }

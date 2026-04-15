@@ -1,4 +1,4 @@
-package org.uga.distributed;
+package utils;
 
 import java.io.Serializable;
 public class Message implements Serializable {
@@ -9,7 +9,9 @@ public class Message implements Serializable {
     public double distance;
     public String destinationAntennaId;
 
-   public enum MessageType {
+
+
+    public enum MessageType {
         SMS,
         Leave,
         Search,
@@ -19,14 +21,29 @@ public class Message implements Serializable {
     }
     public MessageType type;
 
-public Message(){
+    public Message(){
 
-}
-public Message(MessageType type, String senderId, String content){
-    this.type =type;
-    this.senderId = senderId;
-    this.content = content;
-}
+    }
+    public Message(MessageType type, String senderId, String content){
+        this.type =type;
+        this.senderId = senderId;
+        this.content = content;
+    }
+
+    public Message(MessageType messageType, String id, String s, double userLocationX, double userLocationY) {
+        this.type = messageType;
+        this.senderId = id;
+        this.content = s;
+        this.x = userLocationX;
+        this.y = userLocationY;
+    }
+    public Message(MessageType type, String senderId, String content,String destinationAntennaId){
+        this.type =type;
+        this.senderId = senderId;
+        this.content = content;
+        this.destinationAntennaId = destinationAntennaId;
+    }
+
     public String getContent() {
         return content;
     }
