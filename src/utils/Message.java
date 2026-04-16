@@ -7,7 +7,7 @@ public class Message implements Serializable {
     public String reciverId;
     public double x, y;
     public double distance;
-    public String destinationAntennaId;
+    public String multi_purpose_AntennaId;
 
 
 
@@ -17,7 +17,7 @@ public class Message implements Serializable {
         Search,
         Update_Location,
         Search_reply,
-      Connection
+        Connection
     }
     public MessageType type;
 
@@ -41,7 +41,7 @@ public class Message implements Serializable {
         this.type =type;
         this.senderId = senderId;
         this.content = content;
-        this.destinationAntennaId = destinationAntennaId;
+        this.multi_purpose_AntennaId = destinationAntennaId;
     }
 
     public String getContent() {
@@ -92,12 +92,12 @@ public class Message implements Serializable {
         this.distance = distance;
     }
 
-    public String getDestinationAntennaId() {
-        return destinationAntennaId;
+    public String getMulti_purpose_AntennaId() {
+        return multi_purpose_AntennaId;
     }
 
-    public void setDestinationAntennaId(String destinationAntennaId) {
-        this.destinationAntennaId = destinationAntennaId;
+    public void setMulti_purpose_AntennaId(String multi_purpose_AntennaId) {
+        this.multi_purpose_AntennaId = multi_purpose_AntennaId;
     }
 
     public MessageType getType() {
