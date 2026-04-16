@@ -40,3 +40,6 @@ Thumbs.db
 out/
 IDS_Project.iml
 target/
+
+# upper case lower case problem
+src_copy/
