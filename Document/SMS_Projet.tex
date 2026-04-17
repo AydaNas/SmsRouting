@@ -23,169 +23,150 @@
 \subsection*{User}
 \begin{itemize}
   \item \texttt{ID\_user} : string
-  \item \texttt{Table\_Antenna} : \textit{List of Antenna}
-  \item \texttt{Annuaire} : \textit{TODO}
-  \item \texttt{Channel\_in } : RabbitMQ channel
-  \item \texttt{Channel\_out} : RabbitMQ channel
-  \item \texttt{req} : clien\_itf 
+  \item \texttt{userLocationX} : float
+  \item \texttt{userLocationY} : float
+  \item \texttt{current\_Id\_antenna} : String
+  \item \texttt{Channel\_in } : channel
+  \item \texttt{antennaChannelset} : channel //set of antenna channels
+  \item \texttt{req} : user\_itf 
 \end{itemize}
 
 \subsection*{Antenna}
 \begin{itemize}
-  \item \texttt{Table\_User\_position} : \textit{User} $\rightarrow$ \textit{antenna}
   \item \texttt{ID\_antenna} : String
-  \item \texttt{position} : $float * float$
-  \item \texttt{Routing\_Table} : Hash table
-  \item \texttt{Channel\_in} : RabbitMQ channel
-  \item \texttt{Table\_Antenna} : Hash\_table of string -> RabbitMQ channel (Channel\_out)
-  \item \texttt{Table\_User} : Hash\_table of string -> RabbitMQ channel (Channel\_out)
+  \item \texttt{antenna\_position\_x} : float
+  \item \texttt{antenna\_position\_y} : float
+  \item \texttt{radius} : float
+  \item \texttt{Table\_User\_position} : \textit{ID\_User} $\rightarrow$ \textit{ID\_antenna}
+  \item \texttt{Routing\_Table} : Hash table of \textit{ID\_antenna} $\rightarrow$ \textit{ID\_antenna}
+  \item \texttt{Channel\_antenna\_in} : channel
+  \item \texttt{ChannelOutSet} : channel //set of antenna or user channels
 \end{itemize}
 
 % ============================================================
 \section*{Messages}
 
 \begin{itemize}
-  \item \texttt{User\_connected$\langle$ID\_user$\rangle$}
-  \item \texttt{User\_move$\langle$ID\_user$\rangle$}
-  \item \texttt{User\_disconnect$\langle$ID\_user$\rangle$}
-  \item \texttt{User\_send\_message$\langle$ID\_user\_from, ID\_user\_to, message$\rangle$}
-  \item \texttt{Antenna\_update\_user$\langle$ID\_user, ID\_antenna$\rangle$}
-  \item \texttt{Antenna\_delete\_user$\langle$ID\_user$\rangle$}
-  \item \texttt{Antenna\_Ack}
+  \item \texttt{SMS$\langle$sender\_Id , reciver\_Id, message$\rangle$}
+  \item \texttt{Search$\langle$ID\_user, userLocationX, userLocationY$\rangle$}
+  \item \texttt{Update\_Location$\langle$ID\_user,ID\_antenna$\rangle$}
+  \item \texttt{Search\_reply$\langle$ID\_antenna,distance$\rangle$}
+  \item \texttt{connection$\langle$ID\_user,ID\_antenna$\rangle$}
+  \item \texttt{Search\_antenna\_msg}
+  \item \texttt{Leave}
+  \item \texttt{Move$\langle\texttt{x\_coordinate},\ \texttt{y\_coordinate}\rangle$}
+  \item \texttt{\texttt{SMS\_user\_itf}$\langle\texttt{ID\_user\_to},\ \texttt{message}\rangle$}
 \end{itemize}
 
 % ============================================================
 \section*{Rules for Antenna}
 
-\subsection*{Rule 1 — User connection (new user)}
+\subsection*{Rule 1 — Antenna Discovery}
 
 \[
-\texttt{Channel\_in}\ ?\ \langle\texttt{User\_connected},\ \texttt{ID\_user}\rangle
+\texttt{Channel\_in}\{\texttt{exchange : Search}\} ? \langle\texttt{Search,ID\_user, userLocationX, userLocationY}\rangle
 \]
+\[
+\&\&\ \sqrt{(\texttt{userLocationX} - \texttt{antenna\_position\_x})^2 + (\texttt{userLocationY} - \texttt{antenna\_position\_y})^2} \leq \texttt{radius}
+\]
+\hspace*{3em}$\texttt{dist} = \sqrt{(\texttt{userLocationX} - \texttt{antenna\_position\_x})^2 + (\texttt{userLocationY} - \texttt{antenna\_position\_y})^2}$
+\hspace*{3em}$\texttt{ChannelOutSet.get(ID\_user)}\ !\  \texttt{Search\_reply}\langle\texttt{ID\_antenna, dist}\rangle$
 
-\textbf{if} \texttt{ID\_user} $\notin$ \texttt{Table\_User} \textbf{then}\\
-\hspace*{3em}\texttt{Table\_User.add(ID\_user,\ id\_user\_channel\_out)}\\
-\hspace*{3em}\texttt{Table\_User\_position.add(ID\_user,\ ID\_antenna)}\\
-\hspace*{3em}\textbf{for}\ \texttt{a}\ $\in$\ \texttt{Table\_Antenna}\\
-\hspace*{6em}\texttt{a.Channel}\ $!$\ \texttt{Antenna\_update\_user}$\langle$\texttt{ID\_user},\ \texttt{ID\_antenna}$\rangle$\\
-\hspace*{3em}\texttt{id\_user\_channel\_out}\ $!$\ \texttt{Antenna\_Ack}
-
-\textbf{else}\\
-\hspace*{3em}\texttt{id\_user\_channel\_out}\ $!$\ \texttt{Antenna\_Ack}
-
-
-\subsection*{Rule 2 — User deconnection (exiting user)}
+\subsection*{Rule 2 — Registration of users}
 
 \[
-\texttt{Channel\_in}\ ?\ \langle\texttt{User\_disconnected},\ \texttt{ID\_user}\rangle
+\texttt{Channel\_in}\{\texttt{exchange : Connection}\}\ ?\ \langle\texttt{Connection,ID\_user}\rangle
 \]
+\[
+\&\&\ \texttt{target\_antenna = ID\_antenna}
+\]
+\hspace*{3em}\texttt{Table\_User\_position[target\_antenna] = ID\_user}\\
+\hspace*{3em}$\forall\ \texttt{n}\ \in \texttt{ ChannelOutSet }\ |\ \texttt{n is a channel of an antennna} $\\
+\hspace*{6em}$\texttt{n}\{\texttt{exchange : Update}\}\ ?\ \texttt{Update\_Location}\langle\texttt{ID\_user,ID\_antenna}\rangle $
 
-\textbf{if} \texttt{ID\_user} $\in$ \texttt{Table\_User} \textbf{then}\\
-\hspace*{3em}\texttt{tmp\_channel = Table\_User.get(ID\_user)}\\
-\hspace*{3em}\texttt{Table\_User.remove(ID\_user)}\\
-\hspace*{3em}\texttt{Table\_User\_position.remove(ID\_user)}\\
-\hspace*{3em}\textbf{for}\ \texttt{a}\ $\in$\ \texttt{Table\_Antenna}\\
-\hspace*{6em}\texttt{a.Channel}\ $!$\ \texttt{Antenna\_delete\_user}$\langle$\texttt{ID\_user}$\rangle$
-
-\subsection*{Rule 3 — User send message} 
+\subsection*{Rule 3 — SMS transmission}
 
 \[
-\texttt{Channel\_in}\ ?\ \langle\texttt{User\_send\_message},\ \texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle
+\texttt{Channel\_in}\ ?\ \langle\texttt{SMS, sender\_id , receiver\_id, message}\rangle
 \]
-\hspace*{3em}\texttt{target\_antenna = Table\_User\_position.get(ID\_user\_to)}\\
-\hspace*{1.6em}\textbf{if} \texttt{target\_antenna = NULL} \textbf{then}\\
-\hspace*{6em}\texttt{TODO store the message until further info}\\
-\hspace*{1.6em}\textbf{else if} \texttt{target\_antenna = ID\_antenna} \textbf{then}\\
-\hspace*{6em}\texttt{out\_channel = Table\_User.get(ID\_user\_to)}\\
-\hspace*{6em}\texttt{out\_channel}\ !\ \text{User\_send\_message}$\langle$\texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}$\rangle$\\
-\hspace*{1.6em}\textbf{else}\\
-\hspace*{6em}\texttt{next\_antenna = Routing\_Table.get(target\_antenna)}\\
-\hspace*{6em}\texttt{out\_channel = Table\_Antenna.get(next\_antenna)}\\
-\hspace*{6em}\texttt{out\_channel}\ !\ \text{User\_send\_message}$\langle$\texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}$\rangle$
+\hspace*{3em}$\textbf{if}\ \texttt{reciver\_id} \notin \texttt{Table\_User\_position} \textbf{then}$\\
+\hspace*{6em}\texttt{drop}\\
+\hspace*{3em}$\textbf{else if}\ \texttt{Table\_User\_position[receiver\_id]}\ =\ \text{ID\_antenna}\ \textbf{then}$\\
+\hspace*{6em}\texttt{user\_channel = ChannelOutSet.get(receiver\_id)}\\
+\hspace*{6em}\texttt{user\_channel}\ $!$\ \texttt{$\langle$SMS,sender\_Id , receiver\_Id, message$\rangle$}\\
+\hspace*{3em}\textbf{else}\\
+\hspace*{6em}\texttt{antenna\_channel = ChannelOutSet.get(Table\_User\_position[receiver\_id])}\\
+\hspace*{6em}\texttt{antenna\_channel}\ $!$\ \texttt{$\langle$SMS,sender\_Id , receiver\_Id, message$\rangle$}
 
-\subsection*{Rule 4 — User Move}
+\subsection*{Rule 4 — Update Location}
 
 \[
-\texttt{Channel\_in}\ ?\ \langle\texttt{User\_move},\texttt{ID\_user}\rangle
+\texttt{Channel\_in}\{\texttt{exchange : Update}\}\ ?\ \langle\texttt{Update\_Location, id\_user, id\_antenna}\rangle
 \]
-
-\textbf{if} \texttt{ID\_user} $\in$ \texttt{Table\_User} \textbf{then}\\
-\hspace*{3em} \texttt{Table\_User\_position.set}(\texttt{ID\_user,}\textbf{NULL})\\
-\hspace*{3em} \texttt{Table\_User.remove(ID\_user)}
-
-\subsection*{Rule 5 — Antenna update user}
-
 \[
-\texttt{Channel\_in}\ ?\ \langle\texttt{Antenna\_update\_user},\ \texttt{ID\_user},\ \texttt{ID\_antenna}\rangle
+\&\&(\ \texttt{id\_user}\ \notin\ \texttt{Table\_User\_position}\ ||\ \texttt{id\_antenna} = \texttt{Table\_User\_position[id\_user]})
 \]
-
-\textbf{if} \texttt{ID\_user} $\in$ \texttt{Table\_User\_position} \textbf{and}\\\hspace*{3em}\texttt{ID\_antenna = Table\_User\_position.get(ID\_user)} \textbf{then}\\
-\hspace*{3em}\texttt{Do nothing}
-
-\textbf{else}\\
-\hspace*{3em}\texttt{Table\_User\_position.set(ID\_user,ID\_antenna)}\\
-\hspace*{3em}\textbf{for}\ \texttt{a}\ $\in$\ \texttt{Table\_Antenna}\\
-\hspace*{6em}\texttt{a.Channel}\ $!$\ \texttt{Antenna\_update\_user}$\langle$\texttt{ID\_user},\ \texttt{ID\_antenna}$\rangle$
-
-\subsection*{Rule 6 — Antenna delete user}
-
-\[
-\texttt{Channel\_in}\ ?\ \langle\texttt{Antenna\_delete\_user},\ \texttt{ID\_user}\rangle
-\]
-
-\textbf{if} \texttt{ID\_user} $\notin$ \texttt{Table\_User\_position} \textbf{then}\\
-\hspace*{3em}\texttt{Do nothing}
-
-\textbf{else}\\
-\hspace*{3em}\texttt{Table\_User\_position.delete(ID\_user)}\\
-\hspace*{3em}\textbf{for}\ \texttt{a}\ $\in$\ \texttt{Table\_Antenna}\\
-\hspace*{6em}\texttt{a.Channel}\ $!$\ \texttt{Antenna\_delete\_user}$\langle$\texttt{ID\_user}$\rangle$
+\hspace*{3em}$\texttt{Table\_User\_position[id\_user]} = \texttt{id\_antenna}$\\
+ \hspace*{3em}$\forall\ \texttt{n}\ \in \texttt{ ChannelOutSet }\ |\ \texttt{ n is a channel of an antennna} $\\
+\hspace*{6em}$\texttt{n}\{\texttt{exchange : Update}\}\ ?\ \texttt{Update\_Location}\langle\texttt{ID\_user,ID\_antenna}\rangle $
 
 % ============================================================
 \section*{Rules for user}
 
-\subsection*{Rule 1 — User connection (new connection)}
+\subsection*{Rule 1 — Search antenna (new connection)}
 
 \[
-\texttt{req}\ ?\ \langle\texttt{User\_connected}\rangle
+\texttt{req}\ ?\ \texttt{Search\_antenna\_msg}
 \]
+\hspace*{3em}$\forall s \in \texttt{antennaChannelset}\ \texttt{do:}\\
+\hspace*{6em}\texttt{s}\{\texttt{exchange : Search}\}$\ !\ \texttt{Search}$\langle$\texttt{ID\_user}$\rangle$
 
-\hspace*{3em}\texttt{Channel\_out}\ !\ \texttt{User\_connected}$\langle$\texttt{ID\_user}$\rangle$
-
-\subsection*{Rule 2 — User deconnection (exiting user)}
+\subsection*{Rule 2 — Establish a connection}
 
 \[
-\texttt{req}\ ?\ \langle\texttt{User\_disconnected}\rangle
+\texttt{Channel\_in}\ ?\ \langle\texttt{Search\_reply},\ \texttt{test},\ \texttt{distance}\rangle
 \]
+\hspace*{3em}\texttt{best\_antenna = select antenna(ID) with min(distance)}\\
+\hspace*{3em}\texttt{channel\_best\_antenna = antennaChannelset.get(best\_antenna)}\\
+\hspace*{3em}$\textbf{if}\ \texttt{best\_antenna} \neq \texttt{current\_antenna}\ \textbf{then}$\\
+\hspace*{6em}\texttt{channel\_best\_antenna}\{\texttt{exchange : Connection}\}\ !\ \texttt{connection}$\langle$\texttt{ID\_user}$\rangle$\\
+\hspace*{6em}\texttt{current\_Id\_antenna := best\_antenna}
 
-\hspace*{3em}\texttt{Channel\_out}\ !\ \texttt{User\_disconnected}$\langle$\texttt{ID\_user}$\rangle$
-
-\subsection*{Rule 3 — User Move}
+\subsection*{Rule 3 — Move to another antenna}
 
 \[
-\texttt{req}\ ?\ \langle\texttt{move},\texttt{new\_ID\_antenna}\rangle
+\texttt{req}\ ?\ \langle\texttt{Move},\ \texttt{x\_coordinate},\ \texttt{y\_coordinate}\rangle
 \]
-\hspace*{3em}\texttt{Channel\_out}\ !\ \texttt{User\_move}$\langle$\texttt{ID\_user}$\rangle$\\
-\hspace*{3em}\texttt{Channel\_out.close()}\\
-\hspace*{3em}\texttt{Channel\_out.create(new\_ID\_antenna)}\\
-\hspace*{3em}\texttt{Channel\_out}\ !\ \texttt{User\_connected}$\langle$\texttt{ID\_user}$\rangle$
+\hspace*{3em}\texttt{userLocationX = x\_coordinate}\\
+\hspace*{3em}\texttt{userLocationY = y\_coordinate}\\
+\hspace*{3em}$\forall s \in \texttt{antennaChannelset}\ \texttt{do:}\\
+\hspace*{6em}\texttt{s}\{\texttt{exchange : Search}\}$\ !\ \texttt{Search}$\langle$\texttt{ID\_user}$\rangle$
 
 \subsection*{Rule 4 — User send message}
 
 \[
-\texttt{req}\ ?\ \langle\texttt{User\_send\_message},\ \texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle
+\texttt{req}\ ?\ \langle\texttt{SMS\_user\_itf},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle
 \]
+\hspace*{3em}\texttt{receiver\_ID} $=$ \texttt{ID\_user\_to}\\
+\hspace*{3em}\texttt{Channel\_out}\ !\ \texttt{SMS}$\langle$\texttt{sender\_Id},\ \texttt{receiver\_Id},\ \texttt{message}$\rangle$
 
-\hspace*{3em}\texttt{Channel\_out}\ !\ \texttt{User\_send\_message}$\langle$\texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}$\rangle$
 
-
-\subsection*{Rule 5 — User receive connection}
+\subsection*{Rule 5 — User receive message}
 
 \[
-\texttt{Channel\_in}\ ?\ \langle\texttt{User\_send\_message},\ \texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle
+\texttt{Channel\_in}\ ?\ \langle\texttt{User\_send\_message},\ \texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle\ \&\ \text{current\_antenna = antenna\_id} 
 \]
 
 \hspace*{3em}\texttt{print message}
+
+\subsection*{Rule 6 — User receive message}
+
+\[
+\texttt{req}\ ?\ \texttt{Leave}
+\]
+\hspace*{3em}\texttt{channel\_in.close()}\\
+\hspace*{3em}\texttt{channel\_out.close()}\\
+\hspace*{3em}\texttt{End of programme}
 
 
 \section*{upgrade posible}
