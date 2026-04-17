@@ -47,7 +47,7 @@
 \section*{Messages}
 
 \begin{itemize}
-  \item \texttt{SMS$\langle$sender\_Id , reciver\_Id, message$\rangle$}
+  \item \texttt{SMS$\langle$sender\_Id , receiver\_Id, message$\rangle$}
   \item \texttt{Search$\langle$ID\_user, userLocationX, userLocationY$\rangle$}
   \item \texttt{Update\_Location$\langle$ID\_user,ID\_antenna$\rangle$}
   \item \texttt{Search\_reply$\langle$ID\_antenna,distance$\rangle$}
@@ -154,9 +154,11 @@
 \subsection*{Rule 5 — User receive message}
 
 \[
-\texttt{Channel\_in}\ ?\ \langle\texttt{User\_send\_message},\ \texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle\ \&\ \text{current\_antenna = antenna\_id} 
+\texttt{Channel\_in}\ ?\ \langle\texttt{User\_send\_message},\ \texttt{ID\_user\_from},\ \texttt{ID\_user\_to},\ \texttt{message}\rangle\ 
 \]
-
+\[
+\&\&\ \texttt{current\_antenna = antenna\_id} 
+\]
 \hspace*{3em}\texttt{print message}
 
 \subsection*{Rule 6 — User receive message}
